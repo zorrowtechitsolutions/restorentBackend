@@ -1,0 +1,112 @@
+services:
+  api-gateway:
+    container_name: api-gateway
+    build: ./api-gateway
+    ports:
+      - "3000:3000"
+    environment:
+      - NODE_OPTIONS=--dns-result-order=ipv4first
+    env_file:
+      - ./api-gateway/.env
+    depends_on:
+      - user-service
+      - company-service
+      - items-service
+      - role-service
+      - hr-service
+    networks:
+      - foodscan-network
+
+  user-service:
+    container_name: user-service
+    build: ./user-service
+    ports:
+      - "3002:3002"
+    environment:
+      - NODE_OPTIONS=--dns-result-order=ipv4first
+      - PORT=3002
+      - USER_SERVICE_URL=http://user-service:3002
+      - COMPANY_SERVICE_URL=http://company-service:3001
+      - ITEMS_SERVICE_URL=http://items-service:3003
+    env_file:
+      - ./user-service/.env
+    networks:
+      - foodscan-network
+
+  company-service:
+    container_name: company-service
+    build: ./company-service
+    ports:
+      - "3001:3001"
+    environment:
+      - NODE_OPTIONS=--dns-result-order=ipv4first
+      - PORT=3001
+      - COMPANY_SERVICE_URL=http://company-service:3001
+    env_file:
+      - ./company-service/.env
+    networks:
+      - foodscan-network
+
+  items-service:
+    container_name: items-service
+    build: ./items-service
+    ports:
+      - "3003:3003"
+    environment:
+      - NODE_OPTIONS=--dns-result-order=ipv4first
+      - PORT=3003
+      - ITEMS_SERVICE_URL=http://items-service:3003
+    env_file:
+      - ./items-service/.env
+    networks:
+      - foodscan-network
+
+  role-service:
+    container_name: role-service
+    build: ./role-service
+    ports:
+      - "3016:3016"
+    environment:
+      - NODE_OPTIONS=--dns-result-order=ipv4first
+      - PORT=3016
+      - ROLE_SERVICE_URL=http://role-service:3016
+    env_file:
+      - ./role-service/.env
+    networks:
+      - foodscan-network
+
+  hr-service:
+    container_name: hr-service
+    build: ./hr-service
+    ports:
+      - "3004:3004"
+    environment:
+      - NODE_OPTIONS=--dns-result-order=ipv4first
+      - PORT=3004
+      - HR_SERVICE_URL=http://hr-service:3004
+      - COMPANY_SERVICE_URL=http://company-service:3001
+      - USER_SERVICE_URL=http://user-service:3002
+    env_file:
+      - ./hr-service/.env
+    networks:
+      - foodscan-network
+
+  rabbitmq:
+    image: rabbitmq:3-management
+    container_name: rabbitmq
+    restart: always
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      - RABBITMQ_DEFAULT_USER=guest
+      - RABBITMQ_DEFAULT_PASS=guest
+    networks:
+      - foodscan-network
+
+networks:
+  foodscan-network:
+    name: foodscan-network
+    driver: bridge
+    driver_opts:
+      com.docker.network.driver.mtu: "1400"

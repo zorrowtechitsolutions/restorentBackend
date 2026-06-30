@@ -1,0 +1,190 @@
+import { Request, Response } from "express";
+import asyncHandler from "express-async-handler";
+import Rolepermission from "../models/rolepermission.model";
+import { publishEvent } from "../events/publisher";
+
+// CREATE / SYNC - POST /rolepermission
+export const createRolepermission = asyncHandler(
+  async (req: Request, res: Response): Promise<void> => {
+    try {
+      const { roleId, permissionIds, branchId } = req.body;
+
+      if (!roleId || !Array.isArray(permissionIds)) {
+        res.status(400).json({
+          success: false,
+          message: "roleId and permissionIds array required",
+        });
+        return;
+      }
+
+      // 1️⃣ Get existing permissions
+      const existing = await Rolepermission.findAll({
+        where: { roleId },
+      });
+
+      const existingIds = existing.map((p: any) => p.permissionId);
+
+      // 2️⃣ Find what to delete
+      const toDelete = existingIds.filter(
+        (id: number) => !permissionIds.includes(id)
+      );
+
+      // 3️⃣ Find what to add
+      const toAdd = permissionIds.filter(
+        (id: number) => !existingIds.includes(id)
+      );
+
+      // 4️⃣ DELETE removed permissions
+      if (toDelete.length > 0) {
+        await Rolepermission.destroy({
+          where: {
+            roleId,
+            permissionId: toDelete,
+          },
+        });
+      }
+
+      // 5️⃣ INSERT new permissions only
+      const newRecords = toAdd.map((pid: number) => ({
+        roleId,
+        permissionId: pid,
+        branchId: branchId || null,
+      }));
+
+      if (newRecords.length > 0) {
+        await Rolepermission.bulkCreate(newRecords);
+      }
+
+      res.status(200).json({
+        success: true,
+        message: "Role permissions synced successfully",
+      });
+    } catch (error: any) {
+      res.status(500).json({
+        success: false,
+        message: error.message || "Internal server error",
+      });
+    }
+  }
+);
+
+// GET ONE - GET /rolepermission/:id
+export const getanRolepermission: any = asyncHandler(async (req: Request, res: Response) => {
+  const rolepermission = await Rolepermission.findByPk(req.params.id);
+  if (!rolepermission) {
+    res.status(404).json({
+      success: false,
+      message: "Rolepermission not found",
+      data: null,
+      error: { code: "ROLEPERMISSION_NOT_FOUND", details: null },
+    });
+    return;
+  }
+
+  res.status(200).json({
+    success: true,
+    status: "Success",
+    data: rolepermission,
+    error: null,
+  });
+});
+
+// UPDATE - PUT /rolepermission/:id
+export const updateData: any = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+  const updatePayload = req.body;
+
+  const rolepermission = await Rolepermission.update(updatePayload, {
+    where: { id: id },
+    returning: true,
+  });
+
+  if (!rolepermission[1] || rolepermission[1].length === 0) {
+    res.status(404).json({
+      success: false,
+      message: "Rolepermission not found",
+      status: 200,
+      data: null,
+      error: { code: "ROLEPERMISSION_NOT_FOUND", details: null },
+    });
+    return;
+  }
+
+  const updatedRolepermission = rolepermission[1][0];
+
+  await publishEvent("rolepermission_events", "ROLEPERMISSION_UPDATED", {
+    RolepermissionId: updatedRolepermission.id,
+  });
+
+  res.status(200).json({
+    success: true,
+    message: "Successfully updated",
+    data: updatedRolepermission,
+    error: null,
+  });
+});
+
+// DELETE - DELETE /rolepermission/:id
+export const rolepermissionDelete: any = asyncHandler(async (req: Request, res: Response) => {
+  const { id } = req.params;
+
+  const rolepermission = await Rolepermission.findByPk(id);
+  if (!rolepermission) {
+    res.status(404).json({
+      success: false,
+      message: "Rolepermission not found",
+      data: null,
+      error: { code: "ROLEPERMISSION_NOT_FOUND", details: null },
+    });
+    return;
+  }
+
+  await Rolepermission.destroy({ where: { id: id } });
+
+  res.status(200).json({
+    success: true,
+    message: "Role permission deleted successfully",
+    status: 200,
+    data: null,
+    error: null,
+  });
+});
+
+// GET ALL - GET /rolepermission
+export const getRolepermission: any = asyncHandler(async (req: Request, res: Response) => {
+  let { branchId, roleId }: any = req.query;
+
+  if (Array.isArray(branchId)) branchId = branchId[0];
+  if (Array.isArray(roleId)) roleId = roleId[0];
+
+  const whereClause: any = {};
+
+  if (branchId !== undefined) {
+    whereClause.branchId = Number(branchId);
+  }
+
+  if (roleId !== undefined) {
+    whereClause.roleId = Number(roleId);
+  }
+
+  const rolepermission = await Rolepermission.findAll({
+    where: whereClause,
+  });
+
+  if (rolepermission.length === 0) {
+    res.status(404).json({
+      success: false,
+      message: "No data found",
+      data: null,
+      error: { code: "NO_DATA_FOUND", details: null },
+    });
+    return;
+  }
+
+  res.status(200).json({
+    success: true,
+    status: "Success",
+    data: rolepermission,
+    error: null,
+  });
+});

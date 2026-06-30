@@ -1,0 +1,32 @@
+import { Sequelize } from "sequelize";
+
+import { env } from "./env";
+
+const sequelize = new Sequelize(env.DATABASE_URL, {
+  dialect: "postgres",
+  logging: env.NODE_ENV === "development" ? console.log : false,
+  dialectOptions: {
+    ssl: {
+      require: true,
+      rejectUnauthorized: false,
+    },
+  },
+});
+
+export const connectDB = async () => {
+  try {
+    await sequelize.authenticate();
+    
+    // Auto-create/update tables based on Sequelize models
+    await sequelize.sync({ alter: true });
+
+    console.log("✅ PostgreSQL Connected (Role Service)");
+
+  } catch (error) {
+    console.error("❌ DB Error:", error);
+    process.exit(1);
+  }
+};
+
+export default sequelize;
+

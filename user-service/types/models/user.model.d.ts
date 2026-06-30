@@ -1,0 +1,57 @@
+declare const Model: any;
+import { Optional } from "sequelize";
+export interface IUser {
+    id: number;
+    userId?: string;
+    name: string;
+    email: string;
+    image?: string;
+    phone: string;
+    username: string;
+    email_verified_at?: Date;
+    password?: string;
+    fcm_token?: string;
+    branch_id?: number;
+    country_code?: string;
+    is_guest: boolean;
+    status: number;
+    balance: number;
+    creator_type?: string;
+    creator_id?: number;
+    editor_type?: string;
+    editor_id?: number;
+    role_id: number;
+    otp?: string;
+    otp_expiry?: Date;
+    createdAt?: Date;
+    updatedAt?: Date;
+    deletedAt?: Date;
+}
+type UserCreationAttributes = Optional<IUser, "id" | "userId" | "image" | "email_verified_at" | "fcm_token" | "branch_id" | "country_code" | "is_guest" | "status" | "balance" | "creator_type" | "creator_id" | "editor_type" | "editor_id" | "deletedAt">;
+declare class User extends Model<IUser, UserCreationAttributes> implements IUser {
+    id: number;
+    readonly userId: string;
+    name: string;
+    email: string;
+    image?: string;
+    phone: string;
+    username: string;
+    email_verified_at?: Date;
+    password: string;
+    fcm_token?: string;
+    branch_id?: number;
+    country_code?: string;
+    is_guest: boolean;
+    status: number;
+    balance: number;
+    creator_type?: string;
+    creator_id?: number;
+    editor_type?: string;
+    editor_id?: number;
+    role_id: number;
+    otp?: string;
+    otp_expiry?: Date;
+    comparePassword(password: string): Promise<boolean>;
+    static associate(): void;
+}
+export default User;

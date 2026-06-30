@@ -1,0 +1,15 @@
+export declare const registerUser: any;
+export declare const loginUser: any;
+export declare const getUsers: any;
+export declare const getUser: any;
+export declare const updateUser: any;
+export declare const deleteUser: any;
+export declare const changePassword: any;
+export declare const resetPassword: any;
+export declare const refreshUserToken: any;
+export declare const logout: any;
+export declare const loginWithPhone: any;
+export declare const verifyOtp: any;
+export declare const sendOtpEmail: any;
+export declare const verifyOtpEmail: any;
+export declare const resetPasswordEmail: any;

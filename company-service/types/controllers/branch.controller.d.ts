@@ -1,0 +1,15 @@
+export declare const createBranch: any;
+export declare const getAllBranches: any;
+export declare const getBranch: any;
+export declare const updateBranch: any;
+export declare const deleteBranch: any;
+export declare const getBlacklistedBranches: any;
+export declare const loginBranch: any;
+export declare const loginWithPhone: any;
+export declare const verifyOtp: any;
+export declare const sendOtpEmail: any;
+export declare const verifyOtpEmail: any;
+export declare const resetPasswordEmail: any;
+export declare const changePassword: any;
+export declare const refreshBranchToken: any;
+export declare const logout: any;

@@ -1,0 +1,10 @@
+export declare const createOffer: any;
+export declare const getOffers: any;
+export declare const getOffer: any;
+export declare const updateOffer: any;
+export declare const deleteOffer: any;
+export declare const addOfferItem: any;
+export declare const removeOfferItem: any;
+export declare const updateOfferItem: any;
+export declare const getOfferItems: any;
+export declare const getOfferItem: any;

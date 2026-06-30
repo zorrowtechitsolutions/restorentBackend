@@ -1,0 +1,53 @@
+declare const Model: any;
+import { Optional } from "sequelize";
+export interface IOrderItem {
+    id: number;
+    order_id: number;
+    branch_id: number;
+    item_id: number;
+    quantity: number;
+    discount: number;
+    tax_name: string;
+    tax_rate: number;
+    tax_amount: number;
+    price: number;
+    item_variations?: object;
+    item_extras?: object;
+    item_variation_total: number;
+    item_extra_total: number;
+    total_price: number;
+    preparation_time?: number;
+    instruction?: string;
+    creator_type?: string;
+    creator_id?: number;
+    editor_type?: string;
+    editor_id?: number;
+    createdAt?: Date;
+    updatedAt?: Date;
+}
+type OrderItemCreationAttributes = Optional<IOrderItem, "id" | "discount" | "item_variations" | "item_extras" | "instruction" | "creator_type" | "creator_id" | "editor_type" | "editor_id" | "preparation_time">;
+declare class OrderItem extends Model<IOrderItem, OrderItemCreationAttributes> implements IOrderItem {
+    id: number;
+    order_id: number;
+    branch_id: number;
+    item_id: number;
+    quantity: number;
+    discount: number;
+    tax_name: string;
+    tax_rate: number;
+    tax_amount: number;
+    price: number;
+    item_variations?: object;
+    item_extras?: object;
+    item_variation_total: number;
+    item_extra_total: number;
+    total_price: number;
+    preparation_time?: number;
+    instruction?: string;
+    creator_type?: string;
+    creator_id?: number;
+    editor_type?: string;
+    editor_id?: number;
+    static associate(): void;
+}
+export default OrderItem;
